@@ -1,0 +1,39 @@
+{
+  "name": "ifdb-008-size-analyzer",
+  "author": {
+    "name": "yagamy",
+    "email": "yagamy@t2t.io"
+  },
+  "description": "The size distribution analyzer for the points of series in Influxdb v0.8.8",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": "8.9.4"
+  },
+  "main": "lib/client.js",
+  "scripts": {
+    "build": "mkdir -p ./lib && \\\nnode ./node_modules/browserify/bin/cmd.js \\\n  --node \\\n  --extension=ls \\\n  -t browserify-livescript \\\n  --standalone Client \\\n  --external=\"socket.io-client\" \\\n  --outfile ./lib/client.js \\\n  ./src/client-nodejs.ls",
+    "test": "dms db delete sandbox && lsc -c ./tests/*.ls && ava --verbose"
+  },
+  "dependencies": {
+    "colors": "*",
+    "async": "*",
+    "lodash": "*",
+    "mermaid": "*",
+    "mkdirp": "*",
+    "yargs": "*"
+  },
+  "devDependencies": {
+    "browserify": "*",
+    "browserify-livescript": "*"
+  },
+  "keywords": [
+    "influxdb",
+    "size",
+    "analyzer"
+  ],
+  "license": "MIT"
+}
