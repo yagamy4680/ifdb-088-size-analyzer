@@ -39,6 +39,12 @@ class Node
   add-count: (x) ->
     @count = @count + x
 
+  get-count: ->
+    return @count
+
+  get-name: ->
+    return @name
+
   to-text: (leaf=no) ->
     {index, name, count, transform} = self = @
     {root} = transform
@@ -54,8 +60,11 @@ class Transform
     self.index = 0
     self.root = new Node \root, null, self
     self.series-list = []
-    self.outputs = []
+    self.reset-outputs!
     return
+
+  reset-outputs: ->
+    @outputs = []
 
   get-next-index: ->
     {index} = self = @
@@ -76,24 +85,43 @@ class Transform
     s = new Series ns, xs, self
     root.name = y
 
-  process: (@file, @depth, done) ->
+  process: (@file, done) ->
     {opts, root} = self = @
     try
       json = require file
     catch error
       return done error
     [ self.process-series d for d in json ]
-    self.print-output-line "graph LR;"
-    self.traverse-tree root, depth
-    return done null, self.outputs.join '\n'
+    return done!
 
-  traverse-tree: (parent, depth) ->
+  traverse-tree: (depth, done) ->
+    {root} = self = @
+    try
+      self.reset-outputs!
+      self.print-output-line "graph LR;"
+      self.traverse-tree-internally root, depth
+    catch error
+      return done error
+    self.count = self.root.get-count!
+    text = self.outputs.join '\n'
+    return done null, text
+
+  traverse-tree-internally: (parent, depth) ->
     self = @
     return if depth is 0
     for name, c of parent.children
       self.print-output-line "\t#{parent.to-text!} --> #{c.to-text (depth is 1)}"
     for name, c of parent.children
-      self.traverse-tree c, depth - 1
+      self.traverse-tree-internally c, depth - 1
+
+  get-total-count: ->
+    return @root.get-count!
+
+  get-total-series: ->
+    return @series-list.length
+
+  get-id: ->
+    return @root.get-name!
 
 
-module.exports = exports = {Transform}
+module.exports = exports = {Transform, ADD}

@@ -38,10 +38,14 @@ module.exports = exports =
     console.log "file => #{file}"
     console.log "depth => #{depth}"
     t = new Transform {}
-    (process-err, text) <- t.process file, depth
+    (process-err) <- t.process file
     return console.error process-err if process-err?
+    console.log "successfully process #{file} ..."
+    (traverse-err, text) <- t.traverse-tree depth
+    return console.error traverse-err if traverse-err?
+    console.log "successfully traverse #{file} ..., output: #{text.length} bytes."
     (write-err) <- fs.writeFile output, text
     return console.error write-err if write-err?
     console.log text
-    console.log "written to #{output}"
+    console.log "written to #{output} for #{t.get-id!} with #{t.get-total-count!} points"
 
